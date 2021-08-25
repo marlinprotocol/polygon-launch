@@ -1,0 +1,82 @@
+#!/usr/bin/env sh
+
+NODE_DIR=${NODE_DIR:-/data/node}
+BIN_DIR=$(go env GOPATH)/bin
+USER=$(whoami)
+HEIMDALL_HOME=/data/.heimdalld
+
+VALIDATOR_ADDRESS='${VALIDATOR_ADDRESS}'
+
+cat > metadata <<EOF
+VALIDATOR_ADDRESS=
+EOF
+
+cat > bor.service <<EOF
+[Unit]
+  Description=bor
+  StartLimitIntervalSec=500
+  StartLimitBurst=5
+
+[Service]
+  Restart=on-failure
+  RestartSec=5s
+  WorkingDirectory=$NODE_DIR
+  EnvironmentFile=/etc/matic/metadata
+  ExecStartPre=/bin/chmod +x $NODE_DIR/bor/start.sh
+  ExecStart=/bin/bash $NODE_DIR/bor/start.sh $VALIDATOR_ADDRESS
+  Type=simple
+  User=$USER
+
+[Install]
+  WantedBy=multi-user.target
+EOF
+
+cat > heimdalld.service <<EOF
+[Unit]
+  Description=heimdalld
+  StartLimitIntervalSec=500
+  StartLimitBurst=5
+
+[Service]
+  Restart=on-failure
+  RestartSec=5s
+  WorkingDirectory=$NODE_DIR
+  ExecStart=$BIN_DIR/heimdalld start --home $HEIMDALL_HOME 
+  Type=simple
+  User=$USER
+
+[Install]
+  WantedBy=multi-user.target
+EOF
+
+cat > heimdalld-rest-server.service <<EOF
+[Unit]
+  Description=heimdalld-rest-server
+  StartLimitIntervalSec=500
+  StartLimitBurst=5
+
+[Service]
+  Restart=on-failure
+  RestartSec=5s
+  WorkingDirectory=$NODE_DIR
+  ExecStart=$BIN_DIR/heimdalld rest-server --home $HEIMDALL_HOME 
+  Type=simple
+  User=$USER
+
+[Install]
+  WantedBy=multi-user.target
+EOF
+
+cat > heimdalld-bridge.service <<EOF
+[Unit]
+  Description=heimdalld-bridge
+
+[Service]
+  WorkingDirectory=$NODE_DIR
+  ExecStart=$BIN_DIR/bridge start --all
+  Type=simple
+  User=$USER
+
+[Install]
+  WantedBy=multi-user.target
+EOF

@@ -1,0 +1,11 @@
+[Unit]
+  Description=heimdalld-bridge
+
+[Service]
+  WorkingDirectory=/data/node
+  ExecStart=/home/ubuntu/go/bin/bridge start --all
+  Type=simple
+  User=ubuntu
+
+[Install]
+  WantedBy=multi-user.target

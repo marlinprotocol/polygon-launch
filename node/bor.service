@@ -1,0 +1,16 @@
+[Unit]
+  Description=bor
+  StartLimitIntervalSec=500
+  StartLimitBurst=5
+
+[Service]
+  Restart=on-failure
+  RestartSec=5s
+  WorkingDirectory=/data/node
+  ExecStartPre=/bin/chmod +x /data/node/bor/start.sh
+  ExecStart=/bin/bash /data/node/bor/start.sh
+  Type=simple
+  User=ubuntu
+
+[Install]
+  WantedBy=multi-user.target

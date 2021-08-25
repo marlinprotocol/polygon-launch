@@ -1,0 +1,15 @@
+[Unit]
+  Description=heimdalld
+  StartLimitIntervalSec=500
+  StartLimitBurst=5
+
+[Service]
+  Restart=on-failure
+  RestartSec=5s
+  WorkingDirectory=/data/node
+  ExecStart=/home/ubuntu/go/bin/heimdalld start --home /data/.heimdalld 
+  Type=simple
+  User=ubuntu
+
+[Install]
+  WantedBy=multi-user.target
